@@ -1,0 +1,16 @@
+
+ul.horizontal-list {
+  position: absolute;
+  top: 0;
+  left: 0;
+  list-style-type: none; 
+  margin: 0;
+  padding: 0;
+}
+
+ul.horizontal-list li {
+  display:inline; 
+  margin: 50px; 
+}
+
+
