@@ -9,18 +9,25 @@ const Signin:React.FC = () => {
             <div>
                 <img src="Pongo-logo 1.png"/>
             </div>
-            <div className='flex  gap-9 items-center  flex-col '>
+            <div className='flex  gap-9 items-center justify-center   flex-col '>
             <div className='text-4xl text-white m-8 font-poppins'>
-                <span> Welcome Salma</span>
+                <span> Welcome </span>
             </div>
             <div>
                 <img className='rounded-full'  src="pdp1.png"/>
             </div>
-            <form>
+            <form className=''>
                 <label className='text-white text-1xl font-poppins'>Nickname</label><br/>
-                <input className='rounded-lg border-2 bg-[#2D097F] px-10 py-2 text-white  font-poppins' type="text" required ></input><br/>
-                <label className='text-white text-1xl font-poppins'>Two-factor authentication</label>
+                <input type="text" placeholder="Type here" className="input bg-[#2D097F] font-poppins text-white input-bordered w-full max-w-xs" />
+                    <label className="label cursor-pointer">
+                    <input type="checkbox" className="toggle toggle-primary h-6 " defaultChecked={false} /><br/>
+                    <label className='text-white text-1xl font-poppins'>Two-factor authentication</label>  
+                    </label>
             </form>
+            </div>
+         
+        <div className='flex left-full justify-end w-full'>
+            <img src='login2.png' />
             </div>
         </div>
         </>

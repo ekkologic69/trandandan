@@ -26,6 +26,7 @@ function App() {
       <Route path="/Login" element={<><Login /></>}></Route>
       <Route path="/auth/42/callback" element={<><div> yesy qwhdqdw </div></>}></Route>
       <Route path='/Sign_in' element={<><Signin/></>}></Route>
+      <Route path='/Home' element={<><Login /></>}></Route>
       </Routes>
       </BrowserRouter>
     </div>
