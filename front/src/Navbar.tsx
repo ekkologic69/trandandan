@@ -5,7 +5,7 @@ const Navbar: React.FC = () => {
   const navigate = useNavigate();
   return (
     <div className='bg-[#150142] h-screen flex flex-col'>
-    <div className='bg-[#150142] h-36 flex justify-between items-center'>
+    <div className='bg-[#150142] h-36 flex justify-around items-center'>
       <div>
         <img src="Pongo-logo 1.png" />
       </div>

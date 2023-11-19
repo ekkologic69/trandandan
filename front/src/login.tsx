@@ -23,7 +23,7 @@ const Login:React.FC = () => {
                         </button>
                 </div >
             </div>
-            <div className="" style={{position: 'absolute', bottom: "50px", right: "50px"}}>
+            <div className="invisible lg:visible" style={{position: 'absolute', bottom: "50px", right: "50px"}}>
                 <img src="login2.png" style={{height: "22rem", width: "auto"}}/>
             </div>
         </div>
