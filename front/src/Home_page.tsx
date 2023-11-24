@@ -1,16 +1,14 @@
 import React from 'react';
 import { Fragment, useState } from 'react';
 import { Dialog, Menu, Transition } from '@headlessui/react';
-import { BiChevronDown, BiSearch } from 'react-icons/bi';
+import { BiChevronDown } from 'react-icons/bi';
 import { FaTableTennisPaddleBall } from "react-icons/fa6";
 import { FaUserFriends } from "react-icons/fa";
 import { PiSignOut } from "react-icons/pi";
 import { MdOutlineLeaderboard } from "react-icons/md";
-import {
-  BsFillPersonFill,
-  BsBell,
-  BsChatText,
-} from 'react-icons/bs';
+import {BsChatText} from 'react-icons/bs';
+import { IoIosSearch } from "react-icons/io";
+
 
 const user = {
   name: 'Whitney Francis',
@@ -33,10 +31,9 @@ const navigation = [
 ]
 const sidebarNavigation = [
   { name: 'Open', href: '#', icon: BsChatText, current: true },
-  { name: 'Archive', href: '#', icon: FaTableTennisPaddleBall, current: false },
-  { name: 'Customers', href: '#', icon: BsFillPersonFill, current: false },
-  { name: 'Flagged', href: '#', icon: FaUserFriends, current: false },
-  { name: 'Drafts', href: '#', icon: MdOutlineLeaderboard, current: false },
+  { name: 'Archive', href: '#', icon: FaTableTennisPaddleBall, current: true },
+  { name: 'Flagged', href: '#', icon: FaUserFriends, current: true },
+  { name: 'Drafts', href: '#', icon: MdOutlineLeaderboard, current: true },
 ];
 const userNavigation = [
   { name: 'Your Profile', href: '#' },
@@ -113,31 +110,30 @@ const NavBar:React.FC = () =>  {
 
           {/* Desktop nav area */}
           <div className="hidden md:min-w-0 md:flex-1 md:flex md:items-center md:justify-between">
-            <div className="min-w-0 flex-1">
-              <div className="max-w-2xl relative text-gray-400 focus-within:text-white-500">
-                <label htmlFor="desktop-search" className="sr-only">
-                  Search
-                </label>
-                <input
+            <div className="">
+              <div className='flex flex-row  border rounded-full border-[#693DCE] pl-12'>
+              <input
                   id="desktop-search"
                   type="search"
                   placeholder="Search"
-                  className="block w-42 h-10 border rounded-full px-1 border-[#693DCE] pl-12 placeholder-[#693DCE] bg-[#150142] focus:border-transparent sm:text-sm focus:ring-0"
+                  className="block w-30 h-10 placeholder-[#693DCE] bg-[#150142] font-poppins text-white focus:border-transparent sm:text-sm focus:ring-0"
                 />
-                <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center justify-center pl-4">
-                  <BiSearch className="h-5 w-5" aria-hidden="true" />
+                  <div className=" pt-2 pr-2 ">
+                    {/* <p className="bg-white">hh </p> */}
+                  <IoIosSearch className="h-7 w-8 text-[#693DCE] " aria-hidden="true" />
                 </div>
+
               </div>
+              {/* <div className=" relative text-gray-400 focus-within:text-white-500">
+                <label htmlFor="desktop-search" className="sr-only">
+                  Search
+                </label>
+             
+              
+              </div> */}
             </div>
             <div className="ml-10 pr-4 flex-shrink-0 flex items-center space-x-10">
               <div className="flex items-center space-x-8">
-                <span className="inline-flex">
-                  <a href="#" className="-mx-1 bg-white p-1 rounded-full text-gray-400 hover:text-gray-500">
-                    <span className="sr-only">View notifications</span>
-                    <BsBell className="h-6 w-6" aria-hidden="true" />
-                  </a>
-                </span>
-
                 <Menu as="div" className="relative inline-block text-left">
                   <Menu.Button className="bg-white rounded-full flex text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-600">
                     <span className="sr-only">Open user menu</span>
@@ -246,7 +242,7 @@ const NavBar:React.FC = () =>  {
                         className="block w-full border-gray-300 rounded-md pl-10 placeholder-gray-500 focus:border-indigo-600 focus:ring-indigo-600"
                       />
                       <div className="absolute inset-y-0 left-0 flex items-center justify-center pl-3">
-                        <BiSearch className="h-5 w-5" aria-hidden="true" />
+                        <IoIosSearch className="h-5 w-5 " aria-hidden="true" />
                       </div>
                     </div>
                   </div>
@@ -280,10 +276,6 @@ const NavBar:React.FC = () =>  {
                         <div className="text-base font-medium text-gray-800 truncate">{user.name}</div>
                         <div className="text-sm font-medium text-gray-500 truncate">{user.email}</div>
                       </div>
-                      <a href="#" className="ml-auto flex-shrink-0 bg-white p-2 text-gray-400 hover:text-gray-500">
-                        <span className="sr-only">View notifications</span>
-                        <BsBell className="h-6 w-6" aria-hidden="true" />
-                      </a>
                     </div>
                     <div className="mt-3 max-w-8xl mx-auto px-2 space-y-1 sm:px-4">
                       {userNavigation.map((item) => (
@@ -304,47 +296,51 @@ const NavBar:React.FC = () =>  {
         </header>
 
         {/* Bottom section */}
-        <div className="min-h-screen flex-1 flex overflow-hidden">
-          {/* Narrow sidebar*/}
-          <nav aria-label="Sidebar" className=" hidden md:block md:flex-shrink-0 md:bg-gr-800 bg-[#2D097F] md:overflow-y-auto">
-            <div className="relative w-17 flex flex-col p-3 space-y-3">
-              {sidebarNavigation.map((item) => (
-                <a
-                  key={item.name}
-                  href={item.href}
-                  className={classNames(
-                    item.current ? 'text-white' : 'text-gray-400 hover:bg-gray-700',
-                    'flex-shrink-0 inline-flex items-center justify-center h-14 w-14 rounded-lg'
-                  )}
-                >
-                  <span className="sr-only">{item.name}</span>
-                  <item.icon className="h-6 w-6" aria-hidden="true" />
-                </a>
-              ))}
-            </div>
-          </nav>
+        <div className="min-h-screen flex-1 flex overflow-clip">
+  {/* Narrow sidebar */}
+  <nav
+    aria-label="Sidebar"
+    className="hidden md:block md:flex-shrink-0 md:bg-gr-800 bg-[#2D097F] md:overflow-y-auto overflow-y-hidden"
+  >
+    <div className="relative w-17 flex flex-col p-3 space-y-3">
+      {sidebarNavigation.map((item) => (
+        <a
+          key={item.name}
+          href={item.href}
+          className={classNames(
+            item.current ? 'text-white' : 'text-white-400 hover:bg-gray-700',
+            'flex-shrink-0 inline-flex items-center justify-center h-14 w-14 rounded-lg'
+          )}
+        >
+          <span className="sr-only">{item.name}</span>
+          <item.icon className="h-6 w-6" aria-hidden="true" />
+        </a>
+      ))}
+    </div>
+  </nav>
 
-          {/* Main area */}
-          <main className="min-w-0 flex-1 border-t border-gray-200 lg:flex">
-            {/* Primary column */}
-            <section
-              aria-labelledby="primary-heading"
-              className="min-w-0 flex-1 h-full flex flex-col overflow-y-auto lg:order-last"
-            >
-              <h1 id="primary-heading" className="sr-only">
-                Home
-              </h1>
-              {/* Your content */}
-            </section>
+  {/* Main area */}
+  <main className="min-w-0 flex-1 border-t border-gray-200 lg:flex">
+    {/* Primary column */}
+    <section
+      aria-labelledby="primary-heading"
+      className="min-w-0 flex-1 h-full flex flex-col overflow-y-auto lg:order-last"
+    >
+      <h1 id="primary-heading" className="sr-only">
+        Home
+      </h1>
+      {/* Your content */}
+    </section>
 
-            {/* Secondary column (hidden on smaller screens) */}
-            <aside className="hidden lg:block lg:flex-shrink-0 lg:order-first">
-              <div className="h-full relative flex flex-col w-96 border-r border-gray-200 bg-gray-100 overflow-y-auto">
-                {/* Your content */}
-              </div>
-            </aside>
-          </main>
-        </div>
+    {/* Secondary column (hidden on smaller screens) */}
+    {/* <aside className="hidden lg:block lg:flex-shrink-0 lg:order-first"> */}
+    {/* <div className="h-full relative flex flex-col w-96 border-r border-gray-200 bg-gray-100 overflow-y-auto"> */}
+    {/* Your content */}
+    {/* </div> */}
+    {/* </aside> */}
+  </main>
+</div>
+
       </div>
     </>
   )
