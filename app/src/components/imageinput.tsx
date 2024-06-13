@@ -1,10 +1,13 @@
 import React, { ChangeEvent, useState } from "react";
+import { useUser } from "../hooks/useUser";
+import {requestUploadAvatar} from "../requests/requestUser"
 
 interface ImageInputProps {
   onImageChange: (image: string) => void;
 }
 
 const ImageInput: React.FC<ImageInputProps> = ({ onImageChange }) => {
+  const { user } = useUser();
   const [preview, setPreview] = useState<string | null>(null);
 
   const handleImageChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -16,9 +19,28 @@ const ImageInput: React.FC<ImageInputProps> = ({ onImageChange }) => {
       reader.onloadend = () => {
         setPreview(reader.result as string);
         onImageChange(reader.result as string);
+
+
+        
+
+      //   const formData = new FormData();
+      //   formData.append('avatar', file);
+      //   axios
+      // .post(
+      //   "http://localhost:3080/user/uploadAvatar",
+      //   formData,
+      //   {
+      //     withCredentials: true, // Include credentials in the request
+      //   },
+      // )
+      // .then(() => {
+      //   console.log("avatar uploaded");
+
+      // });
       };
 
       reader.readAsDataURL(file);
+      requestUploadAvatar(file)
     } else {
       setPreview(null);
       onImageChange("");
@@ -36,12 +58,13 @@ const ImageInput: React.FC<ImageInputProps> = ({ onImageChange }) => {
           />
         ) : (
           <img
-            src="input.jpg"
+            src={user.avatarUrl}
             alt="Preview"
             className="overflow-hidden w-24 ring ring-primary ring-offset-base-100 ring-offset-2 h-24 rounded-full"
           />
         )}
       </label>
+      <form>
       <input
         type="file"
         accept="image/*"
@@ -49,6 +72,7 @@ const ImageInput: React.FC<ImageInputProps> = ({ onImageChange }) => {
         className="hidden"
         id="imageInput"
       />
+      </form>
     </div>
   );
 };

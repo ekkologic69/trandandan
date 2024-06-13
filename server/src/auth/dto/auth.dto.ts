@@ -1,19 +1,19 @@
 import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
 class Img {
-  @IsString()
-  @IsNotEmpty()
-  link: string;
+    @IsString()
+    @IsNotEmpty()
+    link: string;
 }
 
 export class AuthDto {
-  @IsString()
-  @IsNotEmpty()
-  login: string;
+    @IsString()
+    @IsNotEmpty()
+    login: string;
 
-  @IsNumber()
-  @IsNotEmpty()
-  id: number;
+    @IsNumber()
+    @IsNotEmpty()
+    id: number;
 
-  image: Img;
+    image: Img;
 }

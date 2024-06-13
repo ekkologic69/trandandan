@@ -1,42 +1,50 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-} from '@nestjs/common';
-import { GameService } from './game.service';
-import { CreateGameDto } from './dto/create-game.dto';
-import { UpdateGameDto } from './dto/update-game.dto';
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   game.controller.ts                                 :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mel-kora <mel-kora@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/03/05 12:55:13 by mel-kora          #+#    #+#             */
+/*   Updated: 2024/03/05 17:23:14 by mel-kora         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
+import { Controller, Get, HttpCode, HttpException, HttpStatus, Param } from '@nestjs/common';
+import { GameService } from './game.service';
+import { GameEntity, GameHistory } from './entities/game.entity';
+import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
+
+@ApiTags('game')
 @Controller('game')
 export class GameController {
-  constructor(private readonly gameService: GameService) {}
+    constructor(private readonly gameService: GameService) {}
 
-  @Post()
-  create(@Body() createGameDto: CreateGameDto) {
-    return this.gameService.create(createGameDto);
-  }
+    @Get('history/:id')
+    @HttpCode(HttpStatus.OK)
+    @ApiOkResponse({
+        status: 200,
+        description: 'The player game history is loaded'
+    })
+    
+    async findId(@Param('id') id: string): Promise<Promise<GameHistory>[]> {
+        const gameHistoryList:GameEntity[] = await this.gameService.getGameHistory(id);
+        let history = [];
+        for (const match of gameHistoryList){
+          try {
+              const entry = await this.getEntry(match);
+              history.push(entry);
+          }
+          catch {
+            throw new HttpException('Forbidden', 403);
+          }
+        };
+        return history;
+    }
 
-  @Get()
-  findAll() {
-    return this.gameService.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.gameService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateGameDto: UpdateGameDto) {
-    return this.gameService.update(+id, updateGameDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.gameService.remove(+id);
-  }
+    async getEntry(game:GameEntity): Promise<GameHistory>{
+      const userData1 = await this.gameService.getPlayerdata(game.userA);
+      const userData2 = await this.gameService.getPlayerdata(game.userB);
+      return {game, userData1, userData2};
+    }
 }

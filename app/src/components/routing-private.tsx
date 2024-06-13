@@ -1,17 +1,14 @@
 import { UseQueryResult } from "react-query";
-import { Navigate } from "react-router-dom";
-import { User } from "./interface";
+import { Navigate, Outlet } from "react-router-dom";
+import { User } from "./interfaces";
 import LoadingSpinner from "./loading";
 import useCheckIsLoggedIn from "./query-hooks/useCheckIsLoggedIn";
 
-export default function RequireAuth({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RequireAuth() {
+
   const userInfo: UseQueryResult<User | undefined> = useCheckIsLoggedIn();
   if (userInfo.isSuccess && userInfo.data) {
-    return <>{children}</>;
+    return <Outlet />;
   } else if (userInfo.isLoading) {
     return <LoadingSpinner />;
   } else {

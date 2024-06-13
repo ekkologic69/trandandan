@@ -15,4 +15,5 @@ export interface User {
   friends: string[];
   friendRequests: string[];
   friendRequestsSent: string[];
+  twoFactorEnabled: boolean;
 }

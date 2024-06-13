@@ -1,5 +1,5 @@
 export interface ActiveUser {
-  userId: string;
-  channelIds: string[];
-  socketId: string;
+    userId: string;
+    channelIds: string[];
+    socketId: string;
 }

@@ -1,5 +1,5 @@
 {
   "dependencies": {
-    "npm": "^10.4.0"
+    "react-hook-form": "^7.51.0"
   }
 }

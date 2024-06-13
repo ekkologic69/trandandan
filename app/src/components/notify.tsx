@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { isAxiosError } from "axios";
 
 const FriendRequestsComponent: React.FC = () => {
   useEffect(() => {
@@ -23,7 +24,9 @@ const FriendRequestsComponent: React.FC = () => {
         });
       })
       .catch((error) => {
-        console.error("Error fetching friend requests:", error);
+        if (isAxiosError(error))
+          toast.error(error.response?.data?.message);
+        // console.error("Error fetching friend requests:", error);
       });
   }, []);
 

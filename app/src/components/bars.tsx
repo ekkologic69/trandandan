@@ -1,111 +1,116 @@
-import Sidebar from "./Sidebar";
-import { Outlet, useNavigate } from "react-router-dom";
-import { IoIosSearch } from "react-icons/io";
-import { useUser } from "../hooks/useUser";
-import LoadingSpinner from "./loading";
-import { useState, useEffect } from "react";
-import axios from "axios";
+import Sidebar from './Sidebar';
+import { Link, Outlet, useNavigate } from 'react-router-dom';
+import { useUser } from '../hooks/useUser';
+import LoadingSpinner from './loading';
+import { useEffect, useState } from 'react';
+import { UseProfiles } from '../types/useUserType';
+import { useSearch } from '../hooks/useSearch';
+import { useChatStore } from './chat/store';
+
+const SearchResults: React.FC<{ result: UseProfiles; input: string }> = ({
+	result,
+	input
+}) => {
+	if (input === '') return <></>;
+	if (result.isLoading) return <LoadingSpinner></LoadingSpinner>;
+	if (result.error) return <p>Error </p>;
+	return (
+		<div className=" relativ absolute  -top-3 flex flex-col gap-2 bg-[#693DCE] rounded-lg p-1 z-10">
+			{input && result.users.length === 0 ? (
+				<div className="bg-[#693DCE] text-white font-poppins justify-center items-center text-xl rounded-lg h-16 flex gap-3 w-[17vw]">
+					No results found
+				</div>
+			) : (
+				result.users.map((user) => (
+					<Link to={`/profile/${user.id}`} key={user.id}>
+						<div
+							className="bg-[#693DCE] flex gap-3 w-[17vw]"
+							key={user.id}
+						>
+							<img
+								className="rounded-full"
+								width={40}
+								height={40}
+								src={user.avatarUrl}
+								alt=""
+							/>
+							<div className="text-white font-poppins text-lg">
+								{user.name}
+							</div>
+						</div>
+					</Link>
+				))
+			)}
+		</div>
+	);
+};
 
 const Bars: React.FC = () => {
-  const [searchInput, setSearchInput] = useState("");
-  const [searchResults, setSearchResults] = useState<any[]>([]);
+	const [query, setQuery] = useState('');
+	const results = useSearch(query);
+	const { user, isLoading } = useUser();
+	const navigate = useNavigate();
+	const { connect, disconnect } = useChatStore();
+	const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+		setQuery(event.target.value);
+	};
 
-  const handleSearchInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchInput(e.target.value);
-  };
-  useEffect(() => {
-    const handleSearchSubmit = async () => {
-      try {
-        const response = await axios.get(
-          `http://localhost:3080/user/search/${searchInput}`,
-          { withCredentials: true },
-        );
-        setSearchResults(response.data);
-        console.log(response.data);
-      } catch (error) {
-        console.error("Error searching users:", error);
-      }
-    };
-    handleSearchSubmit();
-  }, [searchInput]);
-  const navigate = useNavigate();
-  const { user, error, isLoading, mutate } = useUser();
-  if (isLoading) {
-    return <LoadingSpinner></LoadingSpinner>;
-  }
-  if (error) {
-    return <div>Error:</div>;
-  }
-  mutate;
-  return (
-    <div className="bg-[#2D097F] h-screen  w-screen">
-      <div className=" md:min-w-0 mr-10 items-center flex flex-col justify-center p-4 h-20 w-[80%]  md:flex">
-        <div className=" w-30 items-center flex-col gap-20 left-52 absolute bg-[#693DCE] border  rounded-full border-[#693DCE] ">
-          <input
-            id="desktop-search"
-            type="search"
-            value={searchInput}
-            onChange={handleSearchInputChange}
-            placeholder="Search"
-            className="block w-30 h-10 relative z-10 rounded-full border-none outline-0 placeholder-[#150142] bg-[#693DCE] font-poppins text-white"
-          />
-          <div className="absolute pt-16 -top-3 flex flex-col gap-2 bg-[#693DCE] rounded-lg ">
-            {searchInput && searchResults.length === 0 ? (
-              <div className="bg-[#693DCE] text-white font-poppins justify-center items-center text-xl rounded-lg h-16 flex gap-3 w-[17vw]">
-                No results found
-              </div>
-            ) : (
-              searchResults.map((user) => (
-                <div className="bg-[#693DCE] flex gap-3 w-[17vw]" key={user.id}>
-                  <img
-                    className="rounded-full"
-                    width={40}
-                    height={40}
-                    src={user.avatarUrl}
-                    alt=""
-                  />
-                  <div className="text-white font-poppins text-lg">
-                    {user.name}
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
-        </div>
-      </div>
-      <div className="fixed top-0 right-0 h-full flex flex-col gap-y-5 w-[15%] text-white p-4 ">
-        <div
-          className="flex ms-[5.5rem]  gap-x-2 text-xl items-center font-poppins  cursor-pointer"
-          onClick={() => navigate("/me")}
-        >
-          <p>{user?.name}</p>
-          <img
-            className="rounded-full"
-            width={40}
-            height={40}
-            src={user?.avatarUrl}
-            alt=""
-          />
-        </div>
-        <div className="bg-glass h-[70%] w-[5rem] transition-all relative border  border-solid rounded-full border-glass ms-[8.5rem] flex flex-col items-center">
-          <div className="">
-            <img
-              className="rounded-full"
-              width={45}
-              height={45}
-              src="https://cdn.intra.42.fr/users/ee249056257c97aaabf8036f36591fc0/ylarhris.JPG"
-              alt=""
-            />
-          </div>
-        </div>
-      </div>
-      <div className="  h-[85%] w-[85%] object-cover flex items-center">
-        <Sidebar />
+	useEffect(() => {
+		connect();
+		return () => {
+			disconnect();
+		};
+	}, [connect, disconnect]);
 
-        <Outlet />
-      </div>
-    </div>
-  );
+	if (isLoading) {
+		return <LoadingSpinner></LoadingSpinner>;
+	}
+
+	// if (error) {
+	//   return <div>Error:</div>;
+	// }
+
+	return (
+		<div className="bg-[#2D097F] h-screen  w-screen ">
+			{/* search bar */}
+			<div className=" md:min-w-0 mr-10 items-center flex flex-col justify-center p-4 h-20 w-[70%]  md:flex">
+				<div className=" w-30 items-center flex-col gap-[10%] left-50  bg-[#693DCE] border  relative rounded-full border-[#693DCE] ">
+					<input
+						id="desktop-search"
+						type="search"
+						value={query}
+						onChange={handleChange}
+						placeholder="Search"
+						className="block w-30 h-10 relative z-10 rounded-full placeholder:text-white border-none outline-0 placeholder-[gray] bg-[#693DCE] font-poppins text-white text-center outline-none"
+					/>
+					<div className="absolute -bottom-4 left-1/2 transform -translate-x-[160px]">
+						<SearchResults result={results} input={query} />
+					</div>
+				</div>
+			</div>
+			{/* connected user bar */}
+			<div className="fixed  top-0 right-[1%] flex flex-col gap-y-5 w-[30%] text-white p-4 items-center ">
+				<div
+					className="flex ms-[5.5rem] gap-x-2 text-xl font-poppins cursor-pointer"
+					onClick={() => navigate('/me')}
+				>
+					<p>{user?.name}</p>
+					<img
+						className="rounded-full"
+						width={40}
+						height={40}
+						src={user?.avatarUrl}
+						alt=""
+					/>
+				</div>
+			</div>
+			<div className="  h-[85%] w-[85%] object-cover flex items-center">
+				<Sidebar />
+				<div className="  h-[100%] w-[5%]"></div>
+				<Outlet />
+			</div>
+		</div>
+	);
 };
 
 export default Bars;

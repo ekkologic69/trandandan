@@ -1,6 +1,6 @@
 import axios, { AxiosResponse } from "axios";
 import { useMutation, UseMutationResult } from "react-query";
-import { apiUrl, User } from "../interface";
+import { apiUrl, User } from "../interfaces";
 
 const putLogOut = () => {
   return axios

@@ -5,6 +5,4 @@
 @import "tailwindcss/base";
 @import "tailwindcss/components";
 @import "tailwindcss/utilities";
-.sidebar {
-  @apply flex items-center mr-8 p-4 rounded-lg cursor-pointer hover:bg-white transition-all duration-300;
-}
+

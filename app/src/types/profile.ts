@@ -1,4 +1,6 @@
 export interface Profile {
+  profile: any;
+  Online: any;
   id: string;
   name: string;
   email: string;

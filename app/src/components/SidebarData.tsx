@@ -3,9 +3,6 @@ import { useNavigate } from "react-router-dom";
 // import { useSetLogOut } from "./query-hooks/setLogOut";
 import LogoutButton from "./LogoutButton";
 
-
-
-
 const SidebarData = () => {
   // const logoutMutation = useSetLogOut();
   // const logout = () => {

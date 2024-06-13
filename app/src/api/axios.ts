@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const instance = axios.create({
-  baseURL: "http://localhost:3090",
+  baseURL: "http://localhost:3080",
   timeout: 1000,
   withCredentials: true,
 });
@@ -11,7 +11,6 @@ instance.interceptors.request.use(
     return config;
   },
   (error) => {
-    console.log("axios request error", error);
     return Promise.reject(error);
   },
 );

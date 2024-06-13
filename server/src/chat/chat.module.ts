@@ -1,13 +1,13 @@
 import { Module } from '@nestjs/common';
-import { ChatService } from './chat.service';
-import { ChatController } from './chat.controller';
-// import { ChatGateway } from './chat/chat.gateway';
 import { ChatGateway } from './chat.gateway';
-import { JwtModule } from '@nestjs/jwt';
+import { ChatController } from './chat.controller';
+import { JwtService } from '@nestjs/jwt';
+import { WebSocketService } from './chat.gateway.service';
+import { RoomService } from './room.service';
 
 @Module({
-  imports: [JwtModule.register({})],
-  controllers: [ChatController],
-  providers: [ChatService, ChatGateway],
+    controllers: [ChatController],
+    providers: [RoomService, JwtService, WebSocketService, ChatGateway],
+    exports: [RoomService, WebSocketService, ChatGateway]
 })
 export class ChatModule {}

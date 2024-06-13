@@ -13,30 +13,30 @@ import { HttpModule } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 
 @Module({
-  imports: [
-    HttpModule,
-    PassportModule,
-    UserModule,
-    JwtModule.registerAsync({
-      useFactory: async () => {
-        return {
-          secret: process.env.JWT_SECRET,
-          signOptions: {
-            expiresIn: '3600m',
-          },
-        };
-      },
-      inject: [ConfigService],
-    }),
-  ],
-  controllers: [AuthController],
-  providers: [
-    AuthService,
-    Api42Strategy,
-    JwtStrategy,
-    TwoFaStrategy,
-    AuthMiddleware,
-  ],
-  exports: [AuthService, JwtStrategy, Api42Strategy, TwoFaStrategy],
+    imports: [
+        HttpModule,
+        PassportModule,
+        UserModule,
+        JwtModule.registerAsync({
+            useFactory: async () => {
+                return {
+                    secret: process.env.JWT_SECRET,
+                    signOptions: {
+                        expiresIn: '3600m'
+                    }
+                };
+            },
+            inject: [ConfigService]
+        })
+    ],
+    controllers: [AuthController],
+    providers: [
+        AuthService,
+        Api42Strategy,
+        JwtStrategy,
+        TwoFaStrategy,
+        AuthMiddleware
+    ],
+    exports: [AuthService, JwtStrategy, Api42Strategy, TwoFaStrategy]
 })
 export class AuthModule {}

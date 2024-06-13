@@ -1,109 +1,99 @@
 import "./App.css";
 import { Route, Routes } from "react-router-dom";
 import Login from "./components/login";
-import Signin from "./components/Sign_in";
 import Landing from "./components/Landing";
 import Home from "./components/Home";
+import { NotFound,ServerError,BadRequestPage,ForbiddenPage } from "./ErrorPage/ErrorPages";
 // import Profile from "./components/profile";
-import PracticeMode from "./components/game_PracticeMode";
+import PracticeMode from "./components/game/PracticeMode";
+import OnlineMode from "./components/game/OnlineMode";
 import Leaderboard from "./components/Leaderboard";
 import Bars from "./components/bars";
 import RequireAuth from "./components/routing-private";
 import NotFoundPage from "./components/notFound";
 import Friends from "./components/friends";
-import { ProfilePage, Profile } from "./components/Profile";
+// import Chat from "../duplicated/chat/Chat";
+import { Profile, ProfilePage } from "./components/Profile";
+import SignIn2FA from "./components/2fa-signin";
+import Layout from "./components/chat/Layout";
+import Dms from "./components/chat/Dms";
+import Rooms from "./components/chat/Rooms";
+// import ErrorBoundary from "./components/ErrorBoundary";
+
 
 function App() {
   return (
-    <div>
+    // <ErrorBoundary>
+      <div>
       <Routes>
+        /* public routes */
+        <Route path="/" element={<Landing />}></Route>
+        <Route path="/login" element={<Login />}></Route>
         <Route
-          path="/"
-          element={
-            <RequireAuth>
-              <Landing />
-            </RequireAuth>
-          }
+          path="/not-found"
+          element={<NotFoundPage></NotFoundPage>}
         ></Route>
-        <Route
-          path="/login"
-          element={
-            <>
-              <Login />
-            </>
-          }
-        ></Route>
-        <Route
-          path="/sign_in"
-          element={
-            <RequireAuth>
-              <Signin />
-            </RequireAuth>
-          }
-        ></Route>
-        <Route
-          path="/bot/"
-          element={
-            <RequireAuth>
-              <div className="bg-[#150142] w-screen h-screen">
-                <div className="game gameshadow">
-                  <PracticeMode />
-                </div>
+        //Error pages
+        <Route path="/400" element={<BadRequestPage></BadRequestPage>}></Route>
+        <Route path="/404" element={<NotFound></NotFound>}></Route>
+        <Route path="/500" element={<ServerError></ServerError>}></Route>
+        <Route path="/403" element={<ForbiddenPage></ForbiddenPage>}></Route>
+        <Route path="*" element={<NotFoundPage></NotFoundPage>}></Route>
+        <Route path="/2fa-sign-in" element={<SignIn2FA />} />
+        /* private routes */
+        <Route element={<RequireAuth />}>
+          setIsLogged(true);
+          <Route element={<Bars />}>
+            <Route path="/home" element={<Home />}></Route>
+            <Route path="/friends" element={<Friends />}></Route>
+            <Route path="/leaderboard" element={<Leaderboard />}></Route>
+            <Route path="/profile/:id" element={<ProfilePage />}></Route>
+            <Route path="/me" element={<Profile />}></Route>
+            {/* <Route path="/chat" element={ <Chat /> }></Route> */}
+            <Route path="/chat" element={<Layout />}>
+              <Route
+                index
+                element={
+                  <div className=" h-full text-black flex bg-violet-500  flex-grow justify-center items-center">
+                    <div className="text-poppins text-slate-700 text-2xl">
+                      no conversation selected
+                    </div>
+                  </div>
+                }
+              />
+              <Route path="dm/:id" element={<Dms />} />
+              <Route path="room/:id" element={<Rooms />} />
+            </Route>
+          </Route>
+          <Route
+            path="/classic/"
+            element={
+              <div className={"bg-[#150142] w-screen h-screen"}>
+                <OnlineMode type={"classic"} />
               </div>
-            </RequireAuth>
-          }
-        ></Route>
-        <Route
-          element={
-            <RequireAuth>
-              <Bars />
-            </RequireAuth>
-          }
-        >
-          <Route
-            path="/home"
-            element={
-              <RequireAuth>
-                <Home />
-              </RequireAuth>
             }
           ></Route>
           <Route
-            path="/friends"
+            path="/quick/"
             element={
-              <RequireAuth>
-                <Friends />
-              </RequireAuth>
+              <div className={"bg-[#150142] w-screen h-screen"}>
+                <OnlineMode type={"quick"} />
+              </div>
             }
           ></Route>
           <Route
-            path="/leaderboard"
+            path="/bot/"
             element={
-              <RequireAuth>
-                <Leaderboard />
-              </RequireAuth>
-            }
-          ></Route>
-          <Route
-            path="/profile/:id"
-            element={
-              <RequireAuth>
-                <ProfilePage />
-              </RequireAuth>
-            }
-          ></Route>
-          <Route
-            path="/me"
-            element={
-              <RequireAuth>
-                <Profile />
-              </RequireAuth>
+              <div className={"bg-[#150142] w-screen h-screen"}>
+                <PracticeMode />
+              </div>
             }
           ></Route>
         </Route>
-        <Route path="*" element={<NotFoundPage></NotFoundPage>}></Route>
+        setIsLogged(false);
       </Routes>
     </div>
+    // {/* </ErrorBoundary> */}
   );
 }
 export default App;

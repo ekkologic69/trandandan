@@ -1,282 +1,182 @@
+import { Body, Controller, Get, Post, Req, Param } from '@nestjs/common';
 import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Param,
-  Delete,
-  HttpCode,
-  HttpStatus,
-  UseInterceptors,
-  UploadedFile,
-  Res,
-} from '@nestjs/common';
-import { GetCurrentUserId } from '../common/decorators';
-import { ChatService } from './chat.service';
-import { ChannelDto, MessagetDto, DmDTO, MuteDto, JoinChannelDto } from './dto';
-import { ApiTags, ApiOkResponse, ApiCreatedResponse } from '@nestjs/swagger';
-import { ChannelEntity, DmEntity } from './entities';
-import { UserEntity } from 'src/user/entities/user.entity';
-import { MessagetEntity } from './entities/message.entity';
-import { multerOptions } from 'src/config/multer.config';
-import { FileInterceptor } from '@nestjs/platform-express';
-import { UserChatDto } from './dto/user.chat.dto';
-import { User } from '@prisma/client';
+	CreateRoomDto,
+	ChangeRoomPrivacy,
+	ChangeRoomTitle,
+	ChangeRoomAvatar,
+	CreateDmDto,
+	JoinRoomDto,
+	LeaveRoomDto,
+	SetAdminDto,
+	KickMemberDto,
+	BanMemberDto,
+	RemoveBanDto,
+	MuteUserDto,
+	UnmuteUserDto,
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	changeRoomPasswordDto,
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	ChangeRoomInfoDto
+} from './dto/dto';
+import { RoomService } from './room.service';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { WebSocketService } from './chat.gateway.service';
+import { GetCurrentUserId } from 'src/common/decorators';
 
-@ApiTags('chat')
+@ApiBearerAuth()
+@ApiTags('Chat')
 @Controller('chat')
 export class ChatController {
-  constructor(private readonly chatService: ChatService) {}
+	constructor(
+		private readonly roomService: RoomService,
+		private readonly wsService: WebSocketService
+	) {}
 
-  @Post('create-channel')
-  @HttpCode(HttpStatus.CREATED)
-  @ApiOkResponse()
-  async createChannel(
-    @GetCurrentUserId() userId: string,
-    @Body() channeltDto: ChannelDto,
-  ) {
-    return new ChannelEntity(
-      await this.chatService.createChannel(userId, channeltDto),
-    );
-  }
+	@Post('createRoom')
+	async createRoom(@Req() req, @Body() createRoomDto: CreateRoomDto) {
+		return await this.roomService.createRoom(createRoomDto, req.user.sub);
+	}
 
-  @Post('create-dm')
-  @HttpCode(HttpStatus.CREATED)
-  @ApiOkResponse({ type: DmEntity })
-  async createDm(@GetCurrentUserId() userId: string, @Body() dmDto: DmDTO) {
-    return await this.chatService.createDm(userId, dmDto);
-  }
+	@Post('joinRoom')
+	async joinRoom(@Req() req, @Body() joinRoomDto: JoinRoomDto) {
+		return await this.roomService.joinRoom(joinRoomDto, req.user.sub);
+	}
 
-  @Delete('delete-channel/:id')
-  @HttpCode(HttpStatus.OK)
-  @ApiOkResponse()
-  async deleteChannel(
-    @GetCurrentUserId() userId: string,
-    @Param('id') id: string,
-  ) {
-    return await this.chatService.deleteChannel(userId, id);
-  }
+	@Post('leaveRoom')
+	async leaveRoom(@Req() req, @Body() leaveRoomDto: LeaveRoomDto) {
+		return await this.roomService.leaveRoom(leaveRoomDto, req.user.sub);
+	}
 
-  @Post('actions/owner/:id/transfer')
-  @HttpCode(HttpStatus.OK)
-  @ApiOkResponse({ type: ChannelEntity })
-  async transferOwner(
-    @GetCurrentUserId() userId: string,
-    @Param('id') id: string,
-    @Body() body: UserChatDto,
-  ) {
-    return new UserEntity(
-      await this.chatService.transferOwner(userId, id, body),
-    );
-  }
+	@Post('changeRoomPrivacy')
+	async changeRoomPrivacy(
+		@Req() req,
+		@Body() changeRoomPrivacy: ChangeRoomPrivacy
+	) {
+		return await this.roomService.changeRoomPrivacy(
+			changeRoomPrivacy,
+			req.user.sub
+		);
+	}
 
-  @Post('actions/admins/:id/add')
-  @HttpCode(HttpStatus.OK)
-  @ApiOkResponse()
-  async addAdmin(
-    @GetCurrentUserId() userId: string,
-    @Param('id') id: string,
-    @Body() body: UserChatDto,
-  ) {
-    return new ChannelEntity(await this.chatService.addAdmin(userId, id, body));
-  }
+	@Post('changeRoomTitle')
+	async changeRoomTitle(
+		@Req() req,
+		@Body() changeRoomTitle: ChangeRoomTitle
+	) {
+		return await this.roomService.changeRoomTitle(
+			changeRoomTitle,
+			req.user.sub
+		);
+	}
 
-  @Post('actions/admins/:id/remove')
-  @HttpCode(HttpStatus.OK)
-  @ApiOkResponse()
-  async removeAdmin(
-    @GetCurrentUserId() userId: string,
-    @Param('id') id: string,
-    @Body() body: UserChatDto,
-  ) {
-    return new ChannelEntity(
-      await this.chatService.removeAdmin(userId, id, body),
-    );
-  }
+	@Post('changeRoomAvatar')
+	async changeRoomAvatar(
+		@Req() req,
+		@Body() changeRoomAvatar: ChangeRoomAvatar
+	) {
+		return await this.roomService.changeRoomAvatar(
+			changeRoomAvatar,
+			req.user.sub
+		);
+	}
 
-  @Post('actions/users/:id/add')
-  @HttpCode(HttpStatus.OK)
-  @ApiOkResponse({ type: ChannelEntity })
-  async addUser(
-    @GetCurrentUserId() userId: string,
-    @Param('id') id: string,
-    @Body() body: UserChatDto,
-  ) {
-    return new ChannelEntity(await this.chatService.addUser(userId, id, body));
-  }
+	@Get('AllRooms')
+	async getAllRooms(@Req() req) {
+		return await this.roomService.getAllRooms(req.user.sub);
+	}
 
-  @Post('actions/users/:id/remove')
-  @HttpCode(HttpStatus.OK)
-  @ApiOkResponse({ type: ChannelEntity })
-  async removeUser(
-    @GetCurrentUserId() userId: string,
-    @Param('id') id: string,
-    @Body() body: UserChatDto,
-  ) {
-    return new ChannelEntity(
-      await this.chatService.removeUser(userId, id, body),
-    );
-  }
+	@Get('mydms')
+	async getMyDms(@Req() req) {
+		return this.roomService.getAllMyDms(req.user.sub);
+	}
 
-  @Post('actions/join/')
-  @HttpCode(HttpStatus.OK)
-  @ApiOkResponse({ type: ChannelEntity })
-  async joinChannel(
-    @GetCurrentUserId() userId: string,
-    @Param('id') id: string,
-    @Body() body: JoinChannelDto,
-  ) {
-    return new ChannelEntity(await this.chatService.joinChannel(userId, body));
-  }
+	@Get('myRooms')
+	async getMyRooms(@Req() req) {
+		return await this.roomService.getMyRooms(req.user.sub);
+	}
 
-  @Post('actions/leave/:id')
-  @HttpCode(HttpStatus.OK)
-  @ApiOkResponse({ type: ChannelEntity })
-  async leaveChannel(
-    @GetCurrentUserId() userId: string,
-    @Param('id') id: string,
-  ) {
-    return new ChannelEntity(await this.chatService.leaveChannel(userId, id));
-  }
+	@Get('allChannels')
+	async getAllChannels(@Req() req) {
+		return await this.roomService.getAllChannels(req.user.sub);
+	}
 
-  @Post('actions/block/:id')
-  @HttpCode(HttpStatus.OK)
-  @ApiOkResponse({ type: ChannelEntity })
-  async blockUser(
-    @GetCurrentUserId() userId: string,
-    @Param('id') id: string,
-    @Body() body: UserChatDto,
-  ) {
-    return new ChannelEntity(
-      await this.chatService.blockUser(userId, id, body),
-    );
-  }
+	@Get('/room/:id')
+	async getRoomUsers(@Req() req, @Param('id') id: string) {
+		return await this.roomService.getOneRoom(id, req.user.sub);
+	}
 
-  @Post('actions/unblock/:id')
-  @HttpCode(HttpStatus.OK)
-  @ApiOkResponse({ type: ChannelEntity })
-  async unblockUser(
-    @GetCurrentUserId() userId: string,
-    @Param('id') id: string,
-    @Body() body: UserChatDto,
-  ) {
-    return new ChannelEntity(
-      await this.chatService.unblockUser(userId, id, body),
-    );
-  }
+	@Get('/dm/:id')
+	async getDmRoom(@Req() req, @Param('id') id: string) {
+		return await this.roomService.getDmRoom(id, req.user.sub);
+	}
 
-  @Post('actions/mute/:id')
-  @HttpCode(HttpStatus.OK)
-  @ApiOkResponse({ type: ChannelEntity })
-  async muteUser(@GetCurrentUserId() userId: string, @Body() body: MuteDto) {
-    return new ChannelEntity(await this.chatService.muteUser(userId, body));
-  }
+	@Post('setAdmin')
+	async setUserToAdminRoom(@Req() req, @Body() setAdminDto: SetAdminDto) {
+		return this.roomService.setUserToAdminRoom(setAdminDto, req.user.sub);
+	}
 
-  @Post('actions/unmute/:id')
-  @HttpCode(HttpStatus.OK)
-  @ApiOkResponse({ type: ChannelEntity })
-  async unmuteUser(
-    @GetCurrentUserId() userId: string,
-    @Param('id') id: string,
-    @Body() body: UserChatDto,
-  ) {
-    return new ChannelEntity(
-      await this.chatService.unmuteUser(userId, id, body),
-    );
-  }
+	@Post('createDm')
+	async createDm(
+		@GetCurrentUserId() loggedUserId: string,
+		@Req() req,
+		@Body() createDmDto: CreateDmDto
+	) {
+		return this.wsService.CheckForExistingDmRoom(
+			req.user.sub,
+			createDmDto.friendId,
+			loggedUserId
+		);
+	}
 
-  @Get('channels')
-  @HttpCode(HttpStatus.OK)
-  @ApiOkResponse({ type: [ChannelEntity] })
-  async getChannels(@GetCurrentUserId() userId: string) {
-    const channels = await this.chatService.getChannels(userId);
-    return channels.map((channel) => new ChannelEntity(channel));
-  }
+	@Post('kickMember')
+	async kickMember(@Req() req, @Body() kickMemberDto: KickMemberDto) {
+		return this.roomService.kickMember(kickMemberDto, req.user.sub);
+	}
 
-  @Get('channels/:id')
-  @HttpCode(HttpStatus.OK)
-  @ApiOkResponse({ type: ChannelEntity })
-  async getChannel(
-    @GetCurrentUserId() userId: string,
-    @Param('id') id: string,
-  ) {
-    return new ChannelEntity(await this.chatService.getChannel(userId, id));
-  }
+	@Post('banMember')
+	async banMember(@Req() req, @Body() banMemberDto: BanMemberDto) {
+		return this.roomService.banMember(banMemberDto, req.user.sub);
+	}
 
-  @Post('uploadPicture/:id')
-  @ApiCreatedResponse()
-  @UseInterceptors(FileInterceptor('picture', multerOptions))
-  async uploadAvatar(
-    @UploadedFile()
-    file: Express.Multer.File,
-    @GetCurrentUserId() userId: string,
-    @Param('id') id: string,
-  ) {
-    return new ChannelEntity(
-      await this.chatService.uploadPicture(userId, id, file),
-    );
-  }
+	@Post('removeBan')
+	async removeBan(@Req() req, @Body() removeBan: RemoveBanDto) {
+		return this.roomService.removeBan(removeBan, req.user.sub);
+	}
 
-  @Get('channels/:id/picture')
-  @HttpCode(HttpStatus.OK)
-  @ApiOkResponse()
-  async getChannelPicture(
-    @GetCurrentUserId() userId: string,
-    @Param('id') id: string,
-    @Res() res,
-  ) {
-    return await this.chatService.getChannelPicture(res, userId, id);
-  }
+	@Post('changeRoomPassword')
+	async changeRoomPassword(
+		@Req() req,
+		@Body() changeRoomPasswordDto: changeRoomPasswordDto
+	) {
+		return this.roomService.changeRoomPassword(
+			changeRoomPasswordDto,
+			req.user.sub
+		);
+	}
 
-  @Get('channels/:id/messages')
-  @HttpCode(HttpStatus.OK)
-  @ApiOkResponse({ type: [MessagetEntity] })
-  async getChannelMessages(
-    @GetCurrentUserId() userId: string,
-    @Param('id') id: string,
-  ) {
-    return await this.chatService.getMessages(userId, id);
-  }
+	@Post('muteUser')
+	async muteUser(@Req() req, @Body() muteUserDto: MuteUserDto) {
+		return this.roomService.muteUser(muteUserDto, req.user.sub);
+	}
 
-  @Get('direct-messages')
-  @HttpCode(HttpStatus.OK)
-  @ApiOkResponse({ type: [DmEntity] })
-  async getDms(@GetCurrentUserId() userId: string) {
-    return await this.chatService.getDms(userId);
-  }
+	@Post('unmuteUser')
+	async unmuteUser(@Req() req, @Body() unmuteUserDto: UnmuteUserDto) {
+		return this.roomService.unmuteUser(unmuteUserDto, req.user.sub);
+	}
 
-  @Get('direct-messages/uninitiated')
-  @HttpCode(HttpStatus.OK)
-  @ApiOkResponse({ type: [DmEntity] })
-  async getUninitiatedDms(@GetCurrentUserId() userId: string) {
-    return await this.chatService.getUninitiatedDms(userId);
-  }
+	@Post('changeRoomInfo')
+	async changeRoomInfo(
+		@Req() req,
+		@Body() ChangeRoomInfoDto: ChangeRoomInfoDto
+	) {
+		return this.roomService.ChangeRoomInfo(ChangeRoomInfoDto, req.user.sub);
+	}
 
-  @Get('direct-messages/:id')
-  @HttpCode(HttpStatus.OK)
-  @ApiOkResponse({ type: DmEntity })
-  async getDm(@GetCurrentUserId() userId: string, @Param('id') id: string) {
-    return await this.chatService.getDm(userId, id);
-  }
-
-  @Get('direct-messages/:id/messages')
-  @HttpCode(HttpStatus.OK)
-  @ApiOkResponse({ type: [MessagetEntity] })
-  async getDmMessages(
-    @GetCurrentUserId() userId: string,
-    @Param('id') id: string,
-  ) {
-    return await this.chatService.getMessages(userId, id);
-  }
-
-  @Post('sendMessage/:id')
-  @HttpCode(HttpStatus.OK)
-  @ApiOkResponse({ type: MessagetEntity })
-  async sendMessage(
-    @GetCurrentUserId() userId: string,
-    @Param('id') id: string,
-    @Body() messagetDto: MessagetDto,
-  ) {
-    return await this.chatService.sendMessage(userId, id, messagetDto);
-  }
+	// @Post('addUserToPrivateRoom')
+	// async addUserToPrivateRoom(
+	//     @Req() req,
+	//     @Body() addUser: AddUserToPrivateRoom
+	// ) {
+	//     return this.roomService.addUserToPrivateRoom(addUser, req.user.sub);
+	// }
 }

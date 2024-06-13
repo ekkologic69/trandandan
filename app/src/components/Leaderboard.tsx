@@ -1,24 +1,44 @@
 import React from "react";
-// import { Navigate, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom"; // Assuming you're using React Router
 import { useLeaderBoard } from "../hooks/useLeaderBoard";
-import LoadingSpinner from "./loading";
-import ProfileCard from "./ProfileCard";
 
 const Leaderboard: React.FC = () => {
-  const { users, isLoading, error } = useLeaderBoard();
+  const navigate = useNavigate();
+  const { users = [] } = useLeaderBoard();
 
-  if (isLoading) {
-    return <LoadingSpinner />;
-  }
-
-  if (error) {
-    return <p>Error loading leaderboard</p>;
-  }
+  const handleProfileClick = (id: string) => {
+    navigate(`/profile/${id}`);
+  };
 
   return (
-    <div className="w-full max-w-screen-xl mx-auto flex flex-col items-center space-y-4 bg-[#150142] p-4">
-      {users.map((user) => (
-        <ProfileCard key={user.id} profile={user} />
+    <div className="w-screen flex md:w-screen h-screen flex-col font-poppins gap-4 justify-center mt-[-328px] items-center bg-[#2D097F]">
+      {users.map((user, index) => (
+        <div
+          key={index}
+          className="h-12 flex items-center justify-between bg-violet-950 rounded-xl cursor-pointer  w-[43rem]"
+        >
+          <div
+            className="flex items-center justify-start space-x-4 flex-shrink-0"
+            onClick={() => handleProfileClick(user.id)}
+          >
+            <img
+              className="rounded-full"
+              width={30}
+              height={30}
+              src={user.avatarUrl}
+              alt={`${user.name}'s profile picture`}
+            />
+            <p className="text-white text-xl font-bold font-poppins">
+              {user.name}
+            </p>
+          </div>
+          <div className="text-white justify-end flex space-x-4">
+            <p>{user.score}</p>
+            <p className="font-bold text-violet-700 font-poppins">
+              #{index + 1}
+            </p>
+          </div>
+        </div>
       ))}
     </div>
   );

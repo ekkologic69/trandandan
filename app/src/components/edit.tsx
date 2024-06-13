@@ -4,7 +4,7 @@ import LoadingSpinner from "./loading";
 
 const Edit = () => {
   const { user, error, isLoading, mutate } = useUser();
-  console.log(user);
+  // console.log(user);
   if (isLoading) {
     return <LoadingSpinner></LoadingSpinner>;
   }

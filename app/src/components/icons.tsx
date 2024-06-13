@@ -15,14 +15,8 @@ export interface SidebarNavItem {
 
 export const sidebarNavigation: SidebarNavItem[] = [
   { name: "Home", href: "/home", icon: AiOutlineHome, current: true },
-  { name: "Chat", href: "#", icon: BsChatText, current: true },
-  { name: "Game", href: "/Bot", icon: FaTableTennisPaddleBall, current: true },
-  { name: "Friends", href: "/Friends", icon: FaUserFriends, current: true },
-  {
-    name: "Leaderboard",
-    href: "/Leaderboard",
-    icon: MdOutlineLeaderboard,
-    current: true,
-  },
-
+  { name: "Chat", href: "/chat", icon: BsChatText, current: true },
+  { name: "Game", href: "/bot", icon: FaTableTennisPaddleBall, current: true },
+  { name: "Friends", href: "/friends", icon: FaUserFriends, current: true },
+  { name: "Leaderboard", href: "/leaderboard", icon: MdOutlineLeaderboard, current: true,},
 ];
